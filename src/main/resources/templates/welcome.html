@@ -11,14 +11,17 @@
     <link rel="icon" type="image/svg+xml" href="/assets/logo.svg">
     <link th:href="@{/css/styles.css}" href="/css/styles.css" rel="stylesheet">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<body>
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="/">
                 <img src="/assets/logo.svg" alt="Universidad Zaragoza Logo" class="me-2 navbar-logo">
                 Modern Web App
             </a>
             <div class="navbar-nav ms-auto">
+                <button id="themeToggleBtn" class="btn btn-sm me-2">
+                    Dark Mode
+                </button>
                 <a class="nav-link" href="/actuator/health" target="_blank">Health</a>
                 <a class="nav-link" href="/api/hello">API</a>
             </div>
@@ -160,5 +163,31 @@
             document.head.appendChild(script);
         })();
     </script>
+
+    <!-- Restore the last theme chosen by the user -->
+    <script>
+        const body = document.body;
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+        // Restore theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.classList.add(savedTheme + '-theme');
+        updateButton(savedTheme);
+
+        // When click, change theme and saves new value in localStorage
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = body.classList.contains('light-theme') ? 'dark' : 'light';
+            body.classList.remove('light-theme', 'dark-theme');
+            body.classList.add(newTheme + '-theme');
+            localStorage.setItem('theme', newTheme);
+            updateButton(newTheme);
+        });
+
+        // Changes the text on the button
+        function updateButton(theme) {
+            themeToggleBtn.textContent = theme === 'light' ? 'Dark Mode' : 'Light Mode';
+        }
+    </script>
+
 </body>
 </html>

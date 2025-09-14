@@ -26,6 +26,103 @@
     min-height: 200px;
 }
 
+/* Light theme (default) */
+body.light-theme {
+    background-color: #f8f9fa;
+    color: #212529;
+}
 
+body.light-theme .navbar {
+    background-color: #0d6efd;
+}
 
+body.light-theme .navbar .navbar-brand,
+body.light-theme .navbar .nav-link,
+body.light-theme .navbar #themeToggleBtn {
+    color: #000000;
+}
 
+/* Dark theme */
+body.dark-theme {
+    background-color: #3f4246;
+    color: #f8f9fa;
+}
+
+body.dark-theme .navbar {
+    background-color: #0a4fb8;
+}
+
+body.dark-theme .navbar .navbar-brand,
+body.dark-theme .navbar .nav-link,
+body.dark-theme .navbar #themeToggleBtn {
+    color: #ffffff;
+}
+
+body.dark-theme .card {
+    background-color: #494c51;
+    color: #f8f9fa;    
+    border-color: #555;
+}
+
+body.dark-theme footer {
+    background-color: #000;
+}
+
+/* Card header */
+body.dark-theme .card-header {
+    background-color: #0a4fb8 !important;
+    color: #f8f9fa !important;
+    border-bottom-color: #646464 !important;
+}
+
+/* Texts */
+body.dark-theme .text-primary {
+    color: #66b2ff !important;
+}
+body.dark-theme .text-muted {
+    color: #c6ccd3 !important;
+}
+
+/* Backgrounds for request/response */
+body.dark-theme .bg-light {
+    background-color: #5a5d61 !important;
+    color: #f8f9fa !important;
+}
+
+/* Inputs */
+body.dark-theme .form-control {
+    background-color: #3c3f44 !important;
+    color: #f8f9fa !important;
+    border-color: #666 !important;
+}
+body.dark-theme .form-control::placeholder {
+    color: #aaa !important;
+}
+
+/* Alerts */
+body.dark-theme .alert-info {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+    border-color: #0dcaf0 !important;
+}
+
+/* Buttons */
+body.dark-theme .btn-outline-info {
+    color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+}
+body.dark-theme .btn-outline-info:hover {
+    background-color: #0dcaf0 !important;
+    color: #000 !important;
+}
+
+/* JSON Request & Response Box Dark Theme */
+body.dark-theme #responseInfo pre,
+body.dark-theme #requestInfo pre {
+    background-color: #000000 !important;
+    color: #f8f9fa !important;
+    overflow-x: auto;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}

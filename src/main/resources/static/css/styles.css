@@ -42,6 +42,15 @@ body.light-theme .navbar #themeToggleBtn {
     color: #000000;
 }
 
+body.light-theme .history-wrapper {
+    background-color: #cfe2ff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
 /* Dark theme */
 body.dark-theme {
     background-color: #3f4246;
@@ -68,14 +77,12 @@ body.dark-theme footer {
     background-color: #000;
 }
 
-/* Card header */
 body.dark-theme .card-header {
     background-color: #0a4fb8 !important;
     color: #f8f9fa !important;
     border-bottom-color: #646464 !important;
 }
 
-/* Texts */
 body.dark-theme .text-primary {
     color: #66b2ff !important;
 }
@@ -83,13 +90,11 @@ body.dark-theme .text-muted {
     color: #c6ccd3 !important;
 }
 
-/* Backgrounds for request/response */
 body.dark-theme .bg-light {
     background-color: #5a5d61 !important;
     color: #f8f9fa !important;
 }
 
-/* Inputs */
 body.dark-theme .form-control {
     background-color: #3c3f44 !important;
     color: #f8f9fa !important;
@@ -99,14 +104,12 @@ body.dark-theme .form-control::placeholder {
     color: #aaa !important;
 }
 
-/* Alerts */
 body.dark-theme .alert-info {
-    background-color: #0dcaf0 !important;
+    background-color: #16b6d6 !important;
     color: #000 !important;
-    border-color: #0dcaf0 !important;
+    border-color: #16b6d6 !important;
 }
 
-/* Buttons */
 body.dark-theme .btn-outline-info {
     color: #0dcaf0 !important;
     border-color: #0dcaf0 !important;
@@ -125,4 +128,28 @@ body.dark-theme #requestInfo pre {
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
+}
+
+body.dark-theme .history-wrapper {
+    background-color: #313b54;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-refresh {
+    background-color: #0d6efd;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.btn-refresh:hover {
+    background-color: #0b5ed7;
 }

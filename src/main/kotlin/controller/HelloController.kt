@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.time.LocalTime
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.media.ExampleObject
 
 val greetingHistory = mutableListOf<Map<String, String>>()
 
@@ -58,9 +64,37 @@ class HelloController(
 
 @RestController
 class HelloApiController {
-    
+
+    @Operation(
+        summary = "Greets user",
+        description = "Returns a personalized greeting message with a timestamp",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Greeting generated correctly",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(
+                        description = "Object with keys 'message' and 'timestamp' (string values)",
+                        type = "object"
+                    ),
+                    additionalPropertiesSchema = Schema(
+                        description = "Values of the map (all strings)",
+                        type = "string",
+                        example = "Good Morning, World!"
+                    ),
+                    examples = [ExampleObject(
+                        value = """{"message":"Good Morning, World!","timestamp":"11:03:50.856953900"}"""
+                    )]
+                )]
+            )
+        ]
+    )
     @GetMapping("/api/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun helloApi(@RequestParam(defaultValue = "World") name: String): Map<String, String> {
+    fun helloApi(
+            @Parameter(description = "Name of who receives the greeting", required = false)
+            @RequestParam(defaultValue = "World") name: String
+        ): Map<String, String> {
         val greeting = "${getGreeting()}, $name!"
         addGreetingToHistory(greeting)
 
@@ -74,6 +108,33 @@ class HelloApiController {
 @RestController
 class HistoryApiController {
 
+    @Operation(
+        summary = "Get greetings history",
+        description = "Returns the list of previously generated greetings",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "History retrieved correctly",
+                content = [
+                    Content(
+                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                        schema = Schema(
+                            description = "Object with key 'history' which contains a list of greetings (strings)",
+                            type = "object"
+                        ),
+                        additionalPropertiesSchema = Schema(
+                            description = "'history' is an array of greeting objects with 'message' and 'timestamp'",
+                            type = "array",
+                            example = "[{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:56.134772300\"},{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:57.903462500\"},{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:58.712779700\"}]"
+                        ),
+                        examples = [ExampleObject(
+                            value = "{\"history\":[{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:56.134772300\"},{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:57.903462500\"},{\"message\":\"Good Morning, World!\",\"timestamp\":\"11:32:58.712779700\"}]}"
+                        )]
+                    )
+                ]
+            )
+        ]
+    )
     @GetMapping("/api/history", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getHistory(): Map<String, Any> {
         return mapOf(

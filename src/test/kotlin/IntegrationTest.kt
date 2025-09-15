@@ -84,4 +84,12 @@ class IntegrationTest {
         assertThat(response.body).contains("Health Check")
         assertThat(response.body).contains("Learning Notes:")
     }
+
+    @Test
+    fun `should return greeting history when requested`() {
+        val response = restTemplate.getForEntity("http://localhost:$port/api/history", String::class.java)
+
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(response.body).contains("\"history\"")
+    }
 }

@@ -52,4 +52,13 @@ class HelloControllerUnitTests {
         )
         assertThat(response["timestamp"]).isNotNull()
     }
+
+    @Test
+    fun `should return greeting history as JSON`() {
+        val historyController = HistoryApiController()
+        val response = historyController.getHistory()
+
+        assertThat(response).containsKey("history")
+        assertThat(response["history"]).isInstanceOf(List::class.java)
+    }
 }

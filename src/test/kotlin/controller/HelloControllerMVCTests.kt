@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
-@WebMvcTest(HelloController::class, HelloApiController::class)
+@WebMvcTest(HelloController::class, HelloApiController::class, HistoryApiController::class)
 class HelloControllerMVCTests {
     @Value("\${app.message:Welcome to the Modern Web App!}")
     private lateinit var message: String
@@ -55,6 +55,15 @@ class HelloControllerMVCTests {
                 equalTo("Good Evening, Test!")
             )))
             .andExpect(jsonPath("$.timestamp").exists())
+    }
+
+    @Test
+    fun `should return greeting history as JSON`() {
+        mockMvc.perform(get("/api/history"))
+            .andDo(print())
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.history").isArray)
     }
 }
 

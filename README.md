@@ -23,6 +23,7 @@ A modern Spring Boot application built with Kotlin, featuring a responsive web i
 - **Build Tool**: Gradle 9.0.0
 - **Testing**: JUnit 5, AssertJ, MockMvc
 - **Containerization**: Docker
+- **Swagger / OpenAPI**: Interactive API documentation (Swagger UI)
 
 ## 📋 Prerequisites
 
@@ -96,6 +97,7 @@ Run specific test classes:
 ### REST API Endpoints
 - `GET /api/hello` - Returns JSON greeting with timestamp
 - `GET /api/hello?name={name}` - Returns personalized JSON greeting
+- ``GET /api/history` - Returns history of greetings
 
 ### Monitoring Endpoints
 - `GET /actuator/health` - Application health status

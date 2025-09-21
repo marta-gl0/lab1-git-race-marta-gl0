@@ -18,8 +18,7 @@ The aspects that have been implemented in this practice are the following:
 
 ## Technical Decisions
 
-**Swagger / OpenAPI**
-Given the experience and successful use of Swagger/OpenAPI in previous projects, this standard was adopted once again for API documentation. Its implementation promotes consistency, leverages existing team knowledge, and minimizes the onboarding time for new developers.
+**- Swagger / OpenAPI:** Given the experience and successful use of Swagger/OpenAPI in previous projects, this standard was adopted once again for API documentation. Its implementation promotes consistency, leverages existing team knowledge, and minimizes the onboarding time for new developers.
 
 ## Learning Outcomes
 

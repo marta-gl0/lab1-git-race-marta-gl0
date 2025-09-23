@@ -24,9 +24,7 @@ The aspects that have been implemented in this practice are the following:
 
 **Kotlin & Spring Boot**
 - Incorporated Kotlin into a project for the first time, gaining practical experience with this technology.
-- Explored how Spring Boot organizes applications through its layered architecture:
-  - Services: Encapsulating business logic.
-  - Controllers: Processing HTTP requests and generating responses.
+- Explored how Spring Boot organizes applications using Controllers, to process HTTP requests and generate responses.
 
 **Server-Side Web Development**
 - Acquired knowledge on building server-rendered applications using Spring Boot in combination with Thymeleaf.
@@ -45,7 +43,7 @@ The aspects that have been implemented in this practice are the following:
 
 **- Describe what was generated with AI assistance:** All the KDoc documentation and the OpenAPI/Swagger annotations added to *HelloController.kt*; the implemented modifications and newly added tests under *src/main/test*; and the additional CSS rules introduced in *styles.css*.
 
-**- Percentage of AI-assisted vs. original work:** Approximately 50% AI-assisted / 50% human-authored and reviewed — the AI generated initial KDoc blocks, OpenAPI annotations and test/style scaffolding; a human developer performed review, corrections, completion, integration and final validation.
+**- Percentage of AI-assisted vs. original work:** Approximately 50% AI-assisted / 50% human-authored and reviewed. All the AI generated initial KDoc blocks, OpenAPI annotations and test/style scaffolding were reviewed, corrected, completed and integrated successfully.
 
 **- Any modifications made to AI-generated code:**
   - Content corrections in KDoc blocks (clarified summaries).

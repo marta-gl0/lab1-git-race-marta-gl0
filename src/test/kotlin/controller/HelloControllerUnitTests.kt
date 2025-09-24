@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.ui.Model
 import org.springframework.ui.ExtendedModelMap
+import java.util.concurrent.ArrayBlockingQueue
+
 
 class HelloControllerUnitTests {
     private lateinit var controller: HelloController
@@ -59,6 +61,6 @@ class HelloControllerUnitTests {
         val response = historyController.getHistory()
 
         assertThat(response).containsKey("history")
-        assertThat(response["history"]).isInstanceOf(List::class.java)
+        assertThat(response["history"]).isInstanceOf(ArrayBlockingQueue::class.java)
     }
 }

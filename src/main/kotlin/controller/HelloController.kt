@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.ExampleObject
+import java.util.concurrent.ArrayBlockingQueue
 
 /**
  * Keeps a rolling history of recent greetings.
@@ -27,7 +28,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
  * the oldest entry is removed.
  *
  */
-val greetingHistory = mutableListOf<Map<String, String>>()
+private val MAX_HISTORY = 50
+private val greetingHistory = ArrayBlockingQueue<Map<String, String>>(MAX_HISTORY)
 
 
 /**
@@ -76,10 +78,12 @@ fun addGreetingToHistory(message: String) {
         "message" to message,
         "timestamp" to LocalTime.now().toString()
     )
-    greetingHistory.add(entry)
-    
-    if (greetingHistory.size > 50) {
-        greetingHistory.removeAt(0)
+
+    synchronized(greetingHistory) {
+        if (!greetingHistory.offer(entry)) {
+            greetingHistory.poll()
+            greetingHistory.offer(entry)
+        }
     }
 }
 

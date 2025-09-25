@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.boot)
+    id("io.gatling.gradle") version "3.14.5"
 }
 
 group = "es.unizar.webeng"

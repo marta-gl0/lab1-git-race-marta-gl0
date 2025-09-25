@@ -311,8 +311,10 @@ class HistoryApiController {
     )
     @GetMapping("/api/history", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getHistory(): Map<String, Any> {
-        return mapOf(
-            "history" to greetingHistory
-        )
+        val snapshot: List<Map<String, String>>
+        synchronized(greetingHistory) {
+            snapshot = ArrayList(greetingHistory)
+        }
+        return mapOf("history" to snapshot)
     }
 }

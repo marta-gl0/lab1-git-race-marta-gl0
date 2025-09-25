@@ -20,7 +20,7 @@ A modern Spring Boot application built with Kotlin, featuring a responsive web i
 - **Language**: Kotlin 2.2.10
 - **Java Version**: 21 LTS
 - **Frontend**: Bootstrap 5.3.3, Thymeleaf
-- **Build Tool**: Gradle 9.0.0
+- **Build Tool**: Gradle 8.6
 - **Testing**: JUnit 5, AssertJ, MockMvc
 - **Containerization**: Docker
 - **Swagger / OpenAPI**: Interactive API documentation (Swagger UI)
@@ -28,7 +28,7 @@ A modern Spring Boot application built with Kotlin, featuring a responsive web i
 ## 📋 Prerequisites
 
 - Java 21 or higher
-- Gradle 9.0.0 or higher
+- Gradle 8.6 or higher
 - Docker (optional)
 
 ## 🏃‍♂️ Quick Start

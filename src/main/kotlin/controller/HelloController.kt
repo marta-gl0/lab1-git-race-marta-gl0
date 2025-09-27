@@ -15,7 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.ExampleObject
-import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ConcurrentLinkedDeque
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Keeps a rolling history of recent greetings.
@@ -24,16 +26,20 @@ import java.util.concurrent.ArrayBlockingQueue
  *  - "message": the greeting text
  *  - "timestamp": the time the entry was added (LocalTime.toString())
  *
- * The list is kept to a maximum of 50 entries; when this limit is exceeded,
- * the oldest entry is removed.
- *
+ * Implementation details:
+ * - Stored in a double-ended queue (`ConcurrentLinkedDeque`) to allow fast insertions at the front
+ * and removals from the back.
+ * - The history is capped at `MAX_HISTORY` (50). When the limit is exceeded, the oldest entries
+ * are discarded.
+ * - Modifications are wrapped with `historyMutex` (a coroutine `Mutex`) to ensure thread-safety
+ * across concurrent coroutines.
  */
 private val MAX_HISTORY = 50
-private val greetingHistory = ArrayBlockingQueue<Map<String, String>>(MAX_HISTORY)
-
+private val greetingHistory = ConcurrentLinkedDeque<Map<String, String>>()
+private val historyMutex = Mutex()
 
 /**
- * Returns a greeting based on the current local time.
+ * Returns a greeting string based on the current local time.
  *
  * Behavior:
  *  - Hours 07..13 (07:00 through 13:59) -> "Good Morning"
@@ -57,32 +63,31 @@ fun getGreeting(): String {
 }
 
 /**
- * Appends a greeting message with the current time to [greetingHistory].
+ * Appends a greeting message with the current time to [greetingHistory]. 
+ * Suspends while acquiring the mutex to append.
  *
- * The stored entry is a map with "message" set to the provided `message`
- * and "timestamp" set to `LocalTime.now().toString()`. If the history size
- * exceeds 50 after adding the new entry, the oldest entry is removed to keep
- * the history capped at 50 items.
+ * Behavior:
+ * - Creates an entry with keys `message` (the provided message) and `timestamp` (`LocalTime.now().toString()`).
+ * - Uses `historyMutex.withLock` to safely modify the queue across coroutines.
+ * - Adds the entry at the front of the queue and removes entries from the back until the size
+ * is within `MAX_HISTORY`.
  *
- * Example usage:
- * ```
- * val message = getGreeting()
- * addGreetingToHistory(message)
- * ```
+ * Implementation notes:
+ * - This function is `suspend` because it acquires a coroutine `Mutex`.
+ * - `timestamp` uses `LocalTime`; it does not contain time zone or absolute time information.
  *
- * @param message the greeting text to record (for example the result of [getGreeting])
- * @see greetingHistory
+ * @param message The greeting text to store in the history.
  */
-fun addGreetingToHistory(message: String) {
+suspend fun addGreetingToHistory(message: String) {
     val entry = mapOf(
         "message" to message,
         "timestamp" to LocalTime.now().toString()
     )
 
-    synchronized(greetingHistory) {
-        if (!greetingHistory.offer(entry)) {
-            greetingHistory.poll()
-            greetingHistory.offer(entry)
+    historyMutex.withLock {
+        greetingHistory.addFirst(entry)
+        while (greetingHistory.size > MAX_HISTORY) {
+            greetingHistory.removeLast()
         }
     }
 }
@@ -100,8 +105,9 @@ fun addGreetingToHistory(message: String) {
  *    the personalized greeting is passed to the view.
  *
  * Notes:
- *  - This controller itself is effectively stateless, but it calls `[addGreetingToHistory]`
- *    which mutates the shared `greetingHistory`.
+ * - The controller is stateless, but it calls `addGreetingToHistory`, which mutates the shared
+ * `greetingHistory`.
+ * - The method is `suspend` because it may call the coroutine-based history function.
  *
  * @property message The fallback message injected from the Spring property `app.message`.
  * Example property:
@@ -142,7 +148,7 @@ class HelloController(
      * @see RequestParam
      */
     @GetMapping("/")
-    fun welcome(
+    suspend fun welcome(
         model: Model,
         @RequestParam(defaultValue = "") name: String
     ): String {
@@ -224,7 +230,7 @@ class HelloApiController {
         ]
     )
     @GetMapping("/api/hello", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun helloApi(
+    suspend fun helloApi(
             @Parameter(description = "Name of who receives the greeting", required = false)
             @RequestParam(defaultValue = "World") name: String
         ): Map<String, String> {
@@ -239,18 +245,17 @@ class HelloApiController {
 }
 
 /**
- * REST controller that exposes an endpoint to retrieve the stored greetings history.
- *
+ * REST controller that provides access to the greetings history.
  * The controller returns a JSON object with a single key `"history"` whose value is the
- * current contents of the shared `[greetingHistory]`. Each element inside that list is a
+ * current snapshot of the shared `[greetingHistory]`. Each element inside that list is a
  * `Map<String, String>` with the keys:
  *  - `"message"`: the greeting text
  *  - `"timestamp"`: the time the greeting was created (as `LocalTime.toString()`)
  *
  * Implementation notes:
- *  - `[greetingHistory]` is a mutable list that is maintained elsewhere in the application.
- *    That list is capped at 50 entries by its producer; callers should not assume the list
- *    contains all historical greetings beyond that limit.
+ * - `greetingHistory` is capped at `MAX_HISTORY` entries.
+ * - Uses `ArrayList(greetingHistory)` to take a snapshot and avoid exposing the concurrent queue
+ * directly to the JSON serializer.
  *
  * @see greetingHistory
  */
@@ -258,7 +263,7 @@ class HelloApiController {
 class HistoryApiController {
 
     /**
-     * GET endpoint that returns the recent greetings history.
+     * GET endpoint that returns the list of recent greetings.
      *
      * Behavior:
      *  - Returns a `Map<String, Any>` where the `"history"` key maps to the current value of
@@ -310,11 +315,7 @@ class HistoryApiController {
         ]
     )
     @GetMapping("/api/history", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getHistory(): Map<String, Any> {
-        val snapshot: List<Map<String, String>>
-        synchronized(greetingHistory) {
-            snapshot = ArrayList(greetingHistory)
-        }
-        return mapOf("history" to snapshot)
+    suspend fun getHistory(): Map<String, Any> {
+        return mapOf("history" to ArrayList(greetingHistory))
     }
 }

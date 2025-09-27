@@ -27,8 +27,13 @@ dependencies {
     developmentOnly(libs.spring.boot.devtools)
     implementation(libs.bootstrap)
     implementation(libs.jackson.module.kotlin)
-    testImplementation(libs.spring.boot.starter.test)
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation("io.projectreactor:reactor-test:3.5.11")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 tasks.withType<Test> {

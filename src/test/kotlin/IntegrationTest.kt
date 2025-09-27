@@ -1,95 +1,134 @@
 package es.unizar.webeng.hello
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
+
     @LocalServerPort
     private var port: Int = 0
 
-    @Autowired
-    private lateinit var restTemplate: TestRestTemplate
+    private lateinit var client: WebTestClient
+
+    @BeforeEach
+    fun setup() {
+        client = WebTestClient.bindToServer()
+            .baseUrl("http://localhost:$port")
+            .build()
+    }
 
     @Test
     fun `should return home page with modern title and client-side HTTP debug`() {
-        val response = restTemplate.getForEntity("http://localhost:$port", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("<title>Modern Web App</title>")
-        assertThat(response.body).contains("Welcome to Modern Web App")
-        assertThat(response.body).contains("Interactive HTTP Testing & Debug")
-        assertThat(response.body).contains("Client-Side Educational Tool")
+        client.get().uri("/")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).contains("<title>Modern Web App</title>")
+                assertThat(body).contains("Welcome to Modern Web App")
+                assertThat(body).contains("Interactive HTTP Testing & Debug")
+                assertThat(body).contains("Client-Side Educational Tool")
+            }
     }
 
     @Test
     fun `should return personalized greeting when name is provided`() {
-        val response = restTemplate.getForEntity("http://localhost:$port?name=Developer", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).containsAnyOf(
-            "Good Morning, Developer!",
-            "Good Afternoon, Developer!",
-            "Good Evening, Developer!"
-        )
+        client.get().uri { b -> b.path("/").queryParam("name", "Developer").build() }
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).containsAnyOf(
+                    "Good Morning, Developer!",
+                    "Good Afternoon, Developer!",
+                    "Good Evening, Developer!"
+                )
+            }
     }
 
     @Test
     fun `should return API response with timestamp`() {
-        val response = restTemplate.getForEntity("http://localhost:$port/api/hello?name=Test", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.headers.contentType).isEqualTo(MediaType.APPLICATION_JSON)
-        assertThat(response.body).containsAnyOf(
-            "Good Morning, Test!",
-            "Good Afternoon, Test!",
-            "Good Evening, Test!"
-        )
-        assertThat(response.body).contains("timestamp")
+        client.get().uri { b -> b.path("/api/hello").queryParam("name", "Test").build() }
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).containsAnyOf(
+                    "Good Morning, Test!",
+                    "Good Afternoon, Test!",
+                    "Good Evening, Test!"
+                )
+                assertThat(body).contains("timestamp")
+            }
     }
 
     @Test
     fun `should serve Bootstrap CSS correctly`() {
-        val response = restTemplate.getForEntity("http://localhost:$port/webjars/bootstrap/5.3.3/css/bootstrap.min.css", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("body")
-        assertThat(response.headers.contentType).isEqualTo(MediaType.valueOf("text/css"))
+        client.get().uri("/webjars/bootstrap/5.3.3/css/bootstrap.min.css")
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentTypeCompatibleWith(MediaType.valueOf("text/css"))
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).contains("body")
+            }
     }
 
     @Test
     fun `should expose actuator health endpoint`() {
-        val response = restTemplate.getForEntity("http://localhost:$port/actuator/health", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("UP")
+        client.get().uri("/actuator/health")
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).contains("UP")
+            }
     }
-    
+
     @Test
     fun `should display client-side HTTP debug interface`() {
-        val response = restTemplate.getForEntity("http://localhost:$port?name=Student", String::class.java)
-        
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("Interactive HTTP Testing & Debug")
-        assertThat(response.body).contains("Client-Side Educational Tool")
-        assertThat(response.body).contains("Web Page Greeting")
-        assertThat(response.body).contains("API Endpoint")
-        assertThat(response.body).contains("Health Check")
-        assertThat(response.body).contains("Learning Notes:")
+        client.get().uri { b -> b.path("/").queryParam("name", "Student").build() }
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).contains("Interactive HTTP Testing & Debug")
+                assertThat(body).contains("Client-Side Educational Tool")
+                assertThat(body).contains("Web Page Greeting")
+                assertThat(body).contains("API Endpoint")
+                assertThat(body).contains("Health Check")
+                assertThat(body).contains("Learning Notes:")
+            }
     }
 
     @Test
     fun `should return greeting history when requested`() {
-        val response = restTemplate.getForEntity("http://localhost:$port/api/history", String::class.java)
+        client.get().uri { b -> b.path("/api/hello").queryParam("name", "Seed").build() }
+            .exchange()
+            .expectStatus().isOk
 
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(response.body).contains("\"history\"")
+        client.get().uri("/api/history")
+            .exchange()
+            .expectStatus().isOk
+            .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)
+            .expectBody(String::class.java)
+            .consumeWith { res ->
+                val body = res.responseBody ?: ""
+                assertThat(body).contains("\"history\"")
+            }
     }
 }

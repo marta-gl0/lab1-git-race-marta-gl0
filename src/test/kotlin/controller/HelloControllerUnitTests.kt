@@ -1,50 +1,52 @@
 package es.unizar.webeng.hello.controller
 
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.ui.Model
 import org.springframework.ui.ExtendedModelMap
+import org.springframework.ui.Model
 import java.util.List
-
 
 class HelloControllerUnitTests {
     private lateinit var controller: HelloController
     private lateinit var model: Model
-    
+
     @BeforeEach
     fun setup() {
         controller = HelloController("Test Message")
         model = ExtendedModelMap()
     }
-    
+
     @Test
-    fun `should return welcome view with default message`() {
+    fun `should return welcome view with default message`() = runBlocking {
         val view = controller.welcome(model, "")
-        
+
         assertThat(view).isEqualTo("welcome")
         assertThat(model.getAttribute("message")).isEqualTo("Test Message")
         assertThat(model.getAttribute("name")).isEqualTo("")
     }
-    
+
     @Test
-    fun `should return welcome view with personalized message`() {
+    fun `should return welcome view with personalized message`() = runBlocking {
         val view = controller.welcome(model, "Developer")
-        
+
         assertThat(view).isEqualTo("welcome")
-        assertThat(model.getAttribute("message")).isIn(
+        @Suppress("UNCHECKED_CAST")
+        val message = model.getAttribute("message") as String
+        assertThat(message).isIn(
             "Good Morning, Developer!",
             "Good Afternoon, Developer!",
             "Good Evening, Developer!"
         )
         assertThat(model.getAttribute("name")).isEqualTo("Developer")
     }
-    
+
     @Test
-    fun `should return API response with timestamp`() {
+    fun `should return API response with timestamp`() = runBlocking {
         val apiController = HelloApiController()
         val response = apiController.helloApi("Test")
-        
+
         assertThat(response).containsKey("message")
         assertThat(response).containsKey("timestamp")
         assertThat(response["message"]).isIn(
@@ -56,7 +58,7 @@ class HelloControllerUnitTests {
     }
 
     @Test
-    fun `should return greeting history as JSON`() {
+    fun `should return greeting history as JSON`() = runBlocking {
         val historyController = HistoryApiController()
         val response = historyController.getHistory()
 
